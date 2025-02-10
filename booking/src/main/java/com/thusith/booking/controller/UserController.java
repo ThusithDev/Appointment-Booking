@@ -3,29 +3,68 @@ package com.thusith.booking.controller;
 import com.thusith.booking.modal.User;
 import com.thusith.booking.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @RestController
+@RequestMapping("/api/auth")
 public class UserController {
 
     @Autowired
     private UserRepository userRepository;
 
-    @PostMapping("/api/users")
-    public User createUser(@RequestBody User user) {
-        return userRepository.save(user);
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Encrypt passwords
+
+    @PostMapping("/register")
+    public ResponseEntity<Map<String, Object>> createUser(@RequestBody User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Email already in use"));
+        }
+
+        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash password before saving
+        User savedUser = userRepository.save(user);
+
+        // Ensure response is valid JSON
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "User registered successfully");
+        response.put("user", savedUser);
+
+        return ResponseEntity.ok(response);
     }
 
-    @GetMapping("/api/users")
-    public User getUser(){
-        User user = new User();
-        user.setEmail("anjulathusith@gmail.com");
-        user.setFullName("Thusith Anjula");
-        user.setPhone("+94778661293");
-        user.setRole("Customer");
-        return user;
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> loginUser(@RequestBody Map<String, String> loginRequest) {
+        String email = loginRequest.get("email");
+        String password = loginRequest.get("password");
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+
+        if (optionalUser.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+        }
+
+        User user = optionalUser.get();
+
+        if (!passwordEncoder.matches(password, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
+        }
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("message", "Login successful");
+        response.put("user", user);
+
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping
+    public List<User> getAllUsers() {
+        return userRepository.findAll();
     }
 }
