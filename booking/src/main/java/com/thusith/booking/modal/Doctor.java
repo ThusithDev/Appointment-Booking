@@ -50,4 +50,12 @@ public class Doctor {
     public Map<String, Boolean> getAvailability() {
         return availability;
     }
+
+    public void bookTimeSlot(String timeSlot) {
+        if (availability.containsKey(timeSlot) && availability.get(timeSlot)) {
+            availability.put(timeSlot, false);
+        } else {
+            throw new RuntimeException("Time slot is not available");
+        }
+    }
 }

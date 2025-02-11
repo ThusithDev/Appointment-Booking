@@ -60,7 +60,7 @@ public class UserController {
         }
 
         // Generate JWT Token
-        String token = jwtUtil.generateToken(email);
+        String token = jwtUtil.generateToken(user);
 
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Login successful");

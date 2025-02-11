@@ -1,5 +1,6 @@
 package com.thusith.booking;
 
+import com.thusith.booking.modal.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -18,16 +19,18 @@ public class JwtUtil {
     @Value("${JWT_SECRET}") // Load secret key from application.properties
     private String secret;
 
-    public String generateToken(String email) {
+    public String generateToken(User user) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
 
         return Jwts.builder()
-                .setSubject(email)
+                .setSubject(user.getEmail())
+                .claim("userId", user.getId())  // Adding userId to token
                 .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60)) // 1 hour expiration
+                .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
     }
+
 
     public String extractEmail(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -42,10 +45,12 @@ public class JwtUtil {
     }
 
     private <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        Claims claims = Jwts.parser()
-                .setSigningKey(secret)
+        Claims claims = Jwts.parserBuilder()
+                .setSigningKey(Keys.hmacShaKeyFor(secret.getBytes()))
+                .build()
                 .parseClaimsJws(token)
                 .getBody();
+
         return claimsResolver.apply(claims);
     }
 

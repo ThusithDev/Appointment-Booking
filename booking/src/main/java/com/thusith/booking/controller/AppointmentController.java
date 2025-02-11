@@ -1,0 +1,51 @@
+package com.thusith.booking.controller;
+
+import com.thusith.booking.modal.Appointment;
+import com.thusith.booking.service.AppointmentService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
+
+@RestController
+@RequestMapping("/api/appointments")
+@CrossOrigin(origins = "*")
+public class AppointmentController {
+    private final AppointmentService appointmentService;
+
+    public AppointmentController(AppointmentService appointmentService) {
+        this.appointmentService = appointmentService;
+    }
+
+    @PostMapping("/book")
+    public ResponseEntity<?> bookAppointment(@RequestBody Map<String, Object> payload) {
+        try {
+            if (!payload.containsKey("doctorId") || !payload.containsKey("userId") || !payload.containsKey("timeSlot")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
+            }
+
+            Long doctorId = parseLong(payload.get("doctorId"));
+            Long userId = parseLong(payload.get("userId"));
+            String timeSlot = (String) payload.get("timeSlot");
+
+            if (doctorId == null || userId == null || timeSlot == null || timeSlot.isEmpty()) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Invalid input values"));
+            }
+
+            Appointment appointment = appointmentService.bookAppointment(doctorId, userId, timeSlot);
+            return ResponseEntity.ok(Map.of("message", "Appointment booked successfully", "appointmentId", appointment.getId()));
+
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    // Helper method to safely parse Long values
+    private Long parseLong(Object value) {
+        try {
+            return value != null ? Long.valueOf(value.toString()) : null;
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+}
