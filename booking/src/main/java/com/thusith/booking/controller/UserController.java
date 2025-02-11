@@ -1,5 +1,6 @@
 package com.thusith.booking.controller;
 
+import com.thusith.booking.JwtUtil;
 import com.thusith.booking.modal.User;
 import com.thusith.booking.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,18 +21,20 @@ public class UserController {
     @Autowired
     private UserRepository userRepository;
 
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder(); // Encrypt passwords
+    @Autowired
+    private JwtUtil jwtUtil;
+
+    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/register")
-    public ResponseEntity<Map<String, Object>> createUser(@RequestBody User user) {
+    public ResponseEntity<Map<String, Object>> registerUser(@RequestBody User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Email already in use"));
         }
 
-        user.setPassword(passwordEncoder.encode(user.getPassword())); // Hash password before saving
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         User savedUser = userRepository.save(user);
 
-        // Ensure response is valid JSON
         Map<String, Object> response = new HashMap<>();
         response.put("message", "User registered successfully");
         response.put("user", savedUser);
@@ -56,15 +59,15 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid email or password"));
         }
 
+        // Generate JWT Token
+        String token = jwtUtil.generateToken(email);
+
         Map<String, Object> response = new HashMap<>();
         response.put("message", "Login successful");
+        response.put("token", token);
         response.put("user", user);
 
         return ResponseEntity.ok(response);
     }
-
-    @GetMapping
-    public List<User> getAllUsers() {
-        return userRepository.findAll();
-    }
 }
+

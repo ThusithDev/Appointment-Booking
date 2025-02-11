@@ -45,8 +45,7 @@ const Login = () => {
     } catch (error) {
       setError(error.message);
     }
-  };
-  
+  };  
 
   return (
     <form className='min-h-[80vh] flex items-center' onSubmit={onSubmitHandler}>
