@@ -3,6 +3,10 @@ package com.thusith.booking.modal;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Entity
 public class DoctorAvailability {
     @EmbeddedId

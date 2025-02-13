@@ -5,6 +5,10 @@ import jakarta.persistence.Embeddable;
 import java.io.Serializable;
 import java.util.Objects;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Embeddable
 public class DoctorAvailabilityId implements Serializable {
     private Long doctorId;

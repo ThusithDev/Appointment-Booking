@@ -10,6 +10,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Entity
 public class Doctor {
     @Id

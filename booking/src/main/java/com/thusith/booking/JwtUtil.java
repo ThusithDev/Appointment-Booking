@@ -13,12 +13,17 @@ import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Component
 public class JwtUtil {
 
     @Value("${JWT_SECRET}") // Load secret key from application.properties
     private String secret;
 
+    // Generate Session Token
     public String generateToken(User user) {
         SecretKey key = Keys.hmacShaKeyFor(secret.getBytes());
 

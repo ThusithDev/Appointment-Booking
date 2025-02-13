@@ -130,8 +130,8 @@ const Appointment = () => {
                         key={index} 
                         className={`px-4 py-2 rounded-lg border ${
                             slot.available 
-                                ? 'bg-green-500 text-white hover:bg-green-600' // Green for available slots
-                                : 'bg-gray-300 text-gray-500 cursor-not-allowed' // Gray for booked slots
+                                ? 'bg-green-500 text-white hover:bg-green-600' 
+                                : 'bg-gray-300 text-gray-500 cursor-not-allowed' 
                         }`} 
                         disabled={!slot.available} // Disable the button if the slot is not available
                         onClick={() => handleTimeSlotClick(slot.timeSlot)}

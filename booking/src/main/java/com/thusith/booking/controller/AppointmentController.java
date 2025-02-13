@@ -39,6 +39,26 @@ public class AppointmentController {
         }
     }
 
+    @GetMapping
+    public ResponseEntity<?> getAppointments(@RequestParam Long userId) {
+        try {
+            List<Appointment> appointments = appointmentService.getAppointmentsByUserId(userId);
+            return ResponseEntity.ok(appointments);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<?> deleteAppointment(@PathVariable Long id) {
+        try {
+            appointmentService.deleteAppointment(id);
+            return ResponseEntity.ok(Map.of("message", "Appointment deleted successfully"));
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+        }
+    }
+
     @GetMapping("/available")
     public ResponseEntity<?> getAvailableSlots(@RequestParam Long doctorId, @RequestParam String date) {
         List<String> availableSlots = appointmentService.getAvailableSlots(doctorId, date);

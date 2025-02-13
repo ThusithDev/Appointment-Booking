@@ -6,6 +6,10 @@ import lombok.Getter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Getter
 @Entity
 public class Appointment {

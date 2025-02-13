@@ -38,8 +38,8 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
-                        .requestMatchers("/api/doctors/**", "/api/appointments/available").permitAll() // Allow viewing available slots
-                        .anyRequest().authenticated()
+                        .requestMatchers("/api/doctors/**", "/api/appointments/available").permitAll() // Users can view available slots without login
+                        .anyRequest().authenticated() // Prevent book, view, delete appointments without login
                 )
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS) // Ensure stateless session management
@@ -52,7 +52,7 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Allowed origin
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Allowed origin url
         configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("*"));
         configuration.setAllowCredentials(true); // Required for cookies or Authorization headers

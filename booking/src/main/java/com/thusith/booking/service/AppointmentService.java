@@ -56,6 +56,14 @@ public class AppointmentService {
         return appointmentRepository.save(appointment);
     }
 
+    public List<Appointment> getAppointmentsByUserId(Long userId) {
+        return appointmentRepository.findByUserId(userId);
+    }
+
+    public void deleteAppointment(Long id) {
+        appointmentRepository.deleteById(id);
+    }
+
     public List<String> getAvailableSlots(Long doctorId, String date) {
         List<String> allSlots = List.of("08:00 AM", "09:00 AM", "12:00 PM", "03:00 PM");
 
