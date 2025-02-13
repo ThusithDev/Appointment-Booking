@@ -1,7 +1,13 @@
 package com.thusith.booking.modal;
 
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import jakarta.persistence.*;
+
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Entity
@@ -12,27 +18,14 @@ public class Doctor {
     private String name;
     private String specialty;
 
-    @ElementCollection
-    @CollectionTable(name = "doctor_availability", joinColumns = @JoinColumn(name = "doctor_id"))
-    @MapKeyColumn(name = "time_slot")
-    @Column(name = "is_available")
-    private Map<String, Boolean> availability = new HashMap<>();
+    @OneToMany(mappedBy = "doctor", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    private List<DoctorAvailability> availability = new ArrayList<>();
 
-    public Doctor() {
-        // Default time slots with availability set to true
-        availability.put("08:00 AM", true);
-        availability.put("09:00 AM", true);
-        availability.put("12:00 PM", true);
-        availability.put("03:00 PM", true);
-    }
+    public Doctor() {}
 
     public Doctor(String name, String specialty) {
         this.name = name;
         this.specialty = specialty;
-        availability.put("08:00 AM", true);
-        availability.put("09:00 AM", true);
-        availability.put("12:00 PM", true);
-        availability.put("03:00 PM", true);
     }
 
     public Long getId() {
@@ -47,15 +40,12 @@ public class Doctor {
         return specialty;
     }
 
-    public Map<String, Boolean> getAvailability() {
+    public List<DoctorAvailability> getAvailability() {
         return availability;
     }
 
-    public void bookTimeSlot(String timeSlot) {
-        if (availability.containsKey(timeSlot) && availability.get(timeSlot)) {
-            availability.put(timeSlot, false);
-        } else {
-            throw new RuntimeException("Time slot is not available");
-        }
+    public void setAvailability(List<DoctorAvailability> availability) {
+        this.availability = availability;
     }
 }
+

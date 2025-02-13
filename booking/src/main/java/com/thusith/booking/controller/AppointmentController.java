@@ -5,6 +5,7 @@ import com.thusith.booking.service.AppointmentService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -20,25 +21,30 @@ public class AppointmentController {
     @PostMapping("/book")
     public ResponseEntity<?> bookAppointment(@RequestBody Map<String, Object> payload) {
         try {
-            if (!payload.containsKey("doctorId") || !payload.containsKey("userId") || !payload.containsKey("timeSlot")) {
+            if (!payload.containsKey("doctorId") || !payload.containsKey("userId") ||
+                    !payload.containsKey("date") || !payload.containsKey("timeSlot")) {
                 return ResponseEntity.badRequest().body(Map.of("error", "Missing required fields"));
             }
 
             Long doctorId = parseLong(payload.get("doctorId"));
             Long userId = parseLong(payload.get("userId"));
+            String date = (String) payload.get("date");
             String timeSlot = (String) payload.get("timeSlot");
 
-            if (doctorId == null || userId == null || timeSlot == null || timeSlot.isEmpty()) {
-                return ResponseEntity.badRequest().body(Map.of("error", "Invalid input values"));
-            }
-
-            Appointment appointment = appointmentService.bookAppointment(doctorId, userId, timeSlot);
+            Appointment appointment = appointmentService.bookAppointment(doctorId, userId, date, timeSlot);
             return ResponseEntity.ok(Map.of("message", "Appointment booked successfully", "appointmentId", appointment.getId()));
 
-        } catch (RuntimeException e) {
+        } catch (Exception e) {
             return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
         }
     }
+
+    @GetMapping("/available")
+    public ResponseEntity<?> getAvailableSlots(@RequestParam Long doctorId, @RequestParam String date) {
+        List<String> availableSlots = appointmentService.getAvailableSlots(doctorId, date);
+        return ResponseEntity.ok(Map.of("availableSlots", availableSlots));
+    }
+
 
     // Helper method to safely parse Long values
     private Long parseLong(Object value) {

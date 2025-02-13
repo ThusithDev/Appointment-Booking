@@ -37,8 +37,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource())) // CORS Configuration
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll() // Allow JWT-based auth endpoints
-                        .requestMatchers("/api/doctors/**").permitAll() // Allow public access to doctors
+                        .requestMatchers("/api/auth/register", "/api/auth/login").permitAll()
+                        .requestMatchers("/api/doctors/**", "/api/appointments/available").permitAll() // Allow viewing available slots
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -48,7 +48,6 @@ public class SecurityConfig {
 
         return http.build();
     }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
