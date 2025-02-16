@@ -18,14 +18,11 @@ public class DoctorAvailability {
     @JsonIgnore  // Prevent infinite recursion
     private Doctor doctor;
 
-    private boolean isAvailable;
-
     public DoctorAvailability() {}
 
-    public DoctorAvailability(Doctor doctor, String timeSlot, boolean isAvailable) {
+    public DoctorAvailability(Doctor doctor, String timeSlot) {
         this.doctor = doctor;
         this.id = new DoctorAvailabilityId(doctor.getId(), timeSlot);
-        this.isAvailable = isAvailable;
     }
 
     public Doctor getDoctor() {
@@ -34,13 +31,5 @@ public class DoctorAvailability {
 
     public String getTimeSlot() {
         return id.getTimeSlot();
-    }
-
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        isAvailable = available;
     }
 }

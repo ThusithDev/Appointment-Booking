@@ -2,6 +2,7 @@ package com.thusith.booking.modal;
 
 import jakarta.persistence.*;
 import lombok.Getter;
+import lombok.Setter;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -37,5 +38,30 @@ public class Appointment {
         this.appointmentDate = appointmentDate;
         this.timeSlot = timeSlot;
         this.bookingTime = LocalDateTime.now();
+    }
+
+    // Setters (if needed)
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setDoctor(Doctor doctor) {
+        this.doctor = doctor;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setAppointmentDate(LocalDate appointmentDate) {
+        this.appointmentDate = appointmentDate;
+    }
+
+    public void setTimeSlot(String timeSlot) {
+        this.timeSlot = timeSlot;
+    }
+
+    public void setBookingTime(LocalDateTime bookingTime) {
+        this.bookingTime = bookingTime;
     }
 }

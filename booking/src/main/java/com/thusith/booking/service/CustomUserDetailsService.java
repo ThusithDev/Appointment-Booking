@@ -8,6 +8,10 @@ import org.springframework.stereotype.Service;
 import com.thusith.booking.repository.UserRepository;
 import com.thusith.booking.modal.User;
 
+/*
+  Author -: Thusith Wickramasinghe @github/ThusithDev
+*/
+
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
 

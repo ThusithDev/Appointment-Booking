@@ -16,43 +16,35 @@ import java.util.stream.Collectors;
 @Service
 public class AppointmentService {
     private final AppointmentRepository appointmentRepository;
-    private final DoctorRepository doctorRepository;
-    private final UserRepository userRepository;
     private final DoctorAvailabilityRepository doctorAvailabilityRepository;
 
-    public AppointmentService(AppointmentRepository appointmentRepository, DoctorRepository doctorRepository,
-                              UserRepository userRepository, DoctorAvailabilityRepository doctorAvailabilityRepository) {
+    public AppointmentService(AppointmentRepository appointmentRepository, DoctorAvailabilityRepository doctorAvailabilityRepository) {
         this.appointmentRepository = appointmentRepository;
-        this.doctorRepository = doctorRepository;
-        this.userRepository = userRepository;
         this.doctorAvailabilityRepository = doctorAvailabilityRepository;
     }
 
     public Appointment bookAppointment(Long doctorId, Long userId, String date, String timeSlot) {
-        Optional<Doctor> doctorOpt = doctorRepository.findById(doctorId);
-        Optional<User> userOpt = userRepository.findById(userId);
-
-        if (doctorOpt.isEmpty() || userOpt.isEmpty()) {
-            throw new RuntimeException("Doctor or User not found");
+        // Check if the time slot is already booked for the selected date
+        boolean isSlotBooked = appointmentRepository.existsByDoctorIdAndAppointmentDateAndTimeSlot(doctorId, LocalDate.parse(date), timeSlot);
+        if (isSlotBooked) {
+            throw new RuntimeException("Time slot is already booked for the selected date");
         }
 
-        Doctor doctor = doctorOpt.get();
-        User user = userOpt.get();
-        LocalDate appointmentDate = LocalDate.parse(date);
-
-        // Check if time slot is available
-        Optional<DoctorAvailability> availabilityOpt = doctorAvailabilityRepository.findById(new DoctorAvailabilityId(doctorId, timeSlot));
-        if (availabilityOpt.isEmpty() || !availabilityOpt.get().isAvailable()) {
-            throw new RuntimeException("Time slot is not available");
+        // Check if the time slot is part of the doctor's default availability
+        boolean isSlotAvailable = doctorAvailabilityRepository.existsByDoctorIdAndTimeSlot(doctorId, timeSlot);
+        if (!isSlotAvailable) {
+            throw new RuntimeException("Time slot is not available for the doctor");
         }
 
-        // Mark the slot as booked
-        DoctorAvailability availability = availabilityOpt.get();
-        availability.setAvailable(false);
-        doctorAvailabilityRepository.save(availability);
+        // Create and save the appointment
+        Doctor doctor = new Doctor();
+        doctor.setId(doctorId);
 
-        // Save the appointment
-        Appointment appointment = new Appointment(doctor, user, appointmentDate, timeSlot);
+        User user = new User();
+        user.setId(userId);
+
+        Appointment appointment = new Appointment(doctor, user, LocalDate.parse(date), timeSlot);
+
         return appointmentRepository.save(appointment);
     }
 
@@ -65,21 +57,15 @@ public class AppointmentService {
     }
 
     public List<String> getAvailableSlots(Long doctorId, String date) {
-        List<String> allSlots = List.of("08:00 AM", "09:00 AM", "12:00 PM", "03:00 PM");
+        // Get the doctor's default available time slots
+        List<String> defaultSlots = doctorAvailabilityRepository.findTimeSlotsByDoctorId(doctorId);
 
-        // Fetch booked slots for the given date
-        List<String> bookedSlots = appointmentRepository
-                .findByDoctorIdAndAppointmentDate(doctorId, LocalDate.parse(date))
-                .stream()
-                .map(Appointment::getTimeSlot)
-                .collect(Collectors.toList());
+        // Get the time slots already booked for the selected date
+        List<String> bookedSlots = appointmentRepository.findTimeSlotsByDoctorIdAndAppointmentDate(doctorId, LocalDate.parse(date));
 
-        // Fetch available slots from `doctor_availability`
-        List<String> availableSlots = doctorAvailabilityRepository.findAvailableSlotsByDoctorId(doctorId)
-                .stream()
+        // Filter out booked slots from default slots
+        return defaultSlots.stream()
                 .filter(slot -> !bookedSlots.contains(slot))
                 .collect(Collectors.toList());
-
-        return availableSlots;
     }
 }

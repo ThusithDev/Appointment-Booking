@@ -51,5 +51,9 @@ public class Doctor {
     public void setAvailability(List<DoctorAvailability> availability) {
         this.availability = availability;
     }
+
+    public void setId(Long doctorId) {
+        this.id = doctorId;
+    }
 }
 
