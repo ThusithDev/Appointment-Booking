@@ -4,14 +4,16 @@ Steps to set up and run the project locally.
 
 Make sure you have installed following softwares with below versions.
 
-JDK 17 or higher
-Node js 18 or higher
-MySQL
+* JDK 17 or higher
+* Node js 18 or higher
+* MySQL
+
 Make sure you have installed following IDEs
 
-VS code
-IntelliJ IDEA
-MySQL workbench
+* VS Code
+* IntelliJ IDEA
+* MySQL Workbench
+
 Download the project and unzip.
 
 Drag and drop booking folder to IntelliJ IDEA.
